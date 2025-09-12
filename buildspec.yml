@@ -7,11 +7,20 @@ phases:
     commands:
       - echo "Installing React dependencies..."
       - npm install
+
+      # Install ShellCheck (prebuilt binary since yum/apt doesn't work in AL2023)
       - echo "Installing ShellCheck..."
-      - yum install -y shellcheck
-      - shellcheck --version || echo "ShellCheck installation failed"
+      - curl -L "https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz" -o shellcheck.tar.xz
+      - tar -xf shellcheck.tar.xz
+      - mv shellcheck-v0.9.0/shellcheck /usr/local/bin/
+      - chmod +x /usr/local/bin/shellcheck
+      - shellcheck --version
+
+      # Install Sonarless CLI
       - echo "Installing Sonarless CLI..."
       - curl -sSfL https://raw.githubusercontent.com/gitricko/sonarless/main/install.sh | bash
+
+      # Verify Sonarless installation
       - echo "Verifying Sonarless installation..."
       - ls -lah ~/.sonarless || echo "Sonarless directory not found"
       - chmod +x ~/.sonarless/makefile.sh || echo "makefile.sh not found or not executable"
