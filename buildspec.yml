@@ -1,5 +1,5 @@
 version: 0.2
-
+ 
 phases:
   install:
     runtime-versions:
@@ -7,39 +7,28 @@ phases:
     commands:
       - echo "Installing React dependencies..."
       - npm install
-
-      # Install ShellCheck
-      - echo "Installing ShellCheck..."
-      - curl -L "https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz" -o shellcheck.tar.xz
-      - tar -xf shellcheck.tar.xz
-      - mv shellcheck-v0.9.0/shellcheck /usr/local/bin/shellcheck
-      - chmod +x /usr/local/bin/shellcheck
-      - export PATH=$PATH:/usr/local/bin
-      - shellcheck --version || echo "ShellCheck not found"
-
-      # Install Sonarless
       - echo "Installing Sonarless CLI..."
       - curl -sSfL https://raw.githubusercontent.com/gitricko/sonarless/main/install.sh | bash
       - echo "Verifying Sonarless installation..."
       - ls -lah ~/.sonarless || echo "Sonarless directory not found"
       - chmod +x ~/.sonarless/makefile.sh || echo "makefile.sh not found or not executable"
       - docker --version || echo "Docker not available — Sonarless will fail"
-
+ 
   pre_build:
     commands:
       - echo "Running Sonarless scan before build..."
       - bash ~/.sonarless/makefile.sh scan src/ || echo "Sonarless scan failed"
       - echo "Sonarless scan completed."
-
+ 
   build:
     commands:
       - echo "Building React application..."
       - npm run build
-
+ 
   post_build:
     commands:
       - echo "Build and scan finished successfully."
-
+ 
 artifacts:
   files:
     - dist/**/*
