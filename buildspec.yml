@@ -7,6 +7,8 @@ phases:
     commands:
       - echo "Installing React dependencies..."
       - npm install
+      - echo "Installing ShellCheck..."
+      - apt-get update && apt-get install -y shellcheck
       - echo "Installing Sonarless CLI..."
       - curl -sSfL https://raw.githubusercontent.com/gitricko/sonarless/main/install.sh | bash
       - echo "Verifying Sonarless installation..."
