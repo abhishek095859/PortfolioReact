@@ -8,7 +8,8 @@ phases:
       - echo "Installing React dependencies..."
       - npm install
       - echo "Installing ShellCheck..."
-      - apt-get update && apt-get install -y shellcheck
+      - yum install -y shellcheck
+      - shellcheck --version || echo "ShellCheck installation failed"
       - echo "Installing Sonarless CLI..."
       - curl -sSfL https://raw.githubusercontent.com/gitricko/sonarless/main/install.sh | bash
       - echo "Verifying Sonarless installation..."
@@ -19,7 +20,7 @@ phases:
   pre_build:
     commands:
       - echo "Running Sonarless scan before build..."
-      - bash ~/.sonarless/makefile.sh scan  src/  || echo "Sonarless scan failed"
+      - bash ~/.sonarless/makefile.sh scan src/ || echo "Sonarless scan failed"
       - echo "Sonarless scan completed."
 
   build:
