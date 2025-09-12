@@ -16,8 +16,24 @@ phases:
  
   pre_build:
     commands:
+      - echo "Setting execute permission on deployment scripts..."
+      - chmod +x install_dependencies.sh build_react.sh || true
+      - echo "Verifying Docker availability..."
+      - docker --version || (echo "Docker CLI missing"; exit 1)
+      - docker info || (echo "Docker daemon unavailable. Enable Privileged Mode in CodeBuild."; exit 1)
+      - echo "Checking simple container run..."
+      - docker run --rm hello-world || (echo "Cannot run containers. Check privileged mode or network."; exit 1)
+      - echo "Pulling SonarQube image for diagnostics..."
+      - docker pull sonarqube:lts || echo "Failed to pull SonarQube image. Check egress/Docker Hub limits."
+      - echo "Attempting to start SonarQube briefly for logs..."
+      - docker run -d --name sqdiag -p 9000:9000 sonarqube:lts || echo "Failed to start SonarQube container."
+      - sleep 20 && docker logs --tail=200 sqdiag || true
+      - docker rm -f sqdiag || true
       - echo "Running Sonarless scan before build..."
       - bash ~/.sonarless/makefile.sh scan src/ || echo "Sonarless scan failed"
+      - echo "Collecting Docker logs after Sonarless attempt..."
+      - docker ps -a || true
+      - docker logs --tail=200 $(docker ps -aq --filter name=sonarqube) || true
       - echo "Sonarless scan completed."
  
   build:
@@ -31,4 +47,7 @@ phases:
  
 artifacts:
   files:
+    - appspec.yml
+    - install_dependencies.sh
+    - build_react.sh
     - dist/**/*
